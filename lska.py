@@ -1,23 +1,26 @@
 # LSKA + SPPF-LSKA：大核可分离注意力
 import torch
-import torch.nn as nn
+from torch import nn
+
 from .conv import Conv
 
 
 class LSKA(nn.Module):
-    """Large Separable Kernel Attention (LSKNet)。
+    """Large Separable Kernel Attention (LSKNet)。.
 
-    用水平+垂直的深度可分离卷积 + 膨胀卷积，以低成本获得大感受野，
-    生成空间注意力图增强特征。最后一层零初始化，初始退化为恒等映射，
-    便于从 P2 权重热启动（初始等价于原 SPPF）。
+    用水平+垂直的深度可分离卷积 + 膨胀卷积，以低成本获得大感受野， 生成空间注意力图增强特征。最后一层零初始化，初始退化为恒等映射， 便于从 P2 权重热启动（初始等价于原 SPPF）。
     """
 
     def __init__(self, dim, k_size=7):
         super().__init__()
         self.conv0h = nn.Conv2d(dim, dim, kernel_size=(1, k_size), padding=(0, k_size // 2), groups=dim)
         self.conv0v = nn.Conv2d(dim, dim, kernel_size=(k_size, 1), padding=(k_size // 2, 0), groups=dim)
-        self.conv_sh = nn.Conv2d(dim, dim, kernel_size=(1, k_size), padding=(0, k_size - 1), groups=dim, dilation=(1, 2))
-        self.conv_sv = nn.Conv2d(dim, dim, kernel_size=(k_size, 1), padding=(k_size - 1, 0), groups=dim, dilation=(2, 1))
+        self.conv_sh = nn.Conv2d(
+            dim, dim, kernel_size=(1, k_size), padding=(0, k_size - 1), groups=dim, dilation=(1, 2)
+        )
+        self.conv_sv = nn.Conv2d(
+            dim, dim, kernel_size=(k_size, 1), padding=(k_size - 1, 0), groups=dim, dilation=(2, 1)
+        )
         self.conv1 = nn.Conv2d(dim, dim, 1)
         nn.init.zeros_(self.conv1.weight)
         nn.init.zeros_(self.conv1.bias)
@@ -32,7 +35,7 @@ class LSKA(nn.Module):
 
 
 class SPPF_LSKA(nn.Module):
-    """SPPF-LSKA：SPPF 后接大核可分离注意力。"""
+    """SPPF-LSKA：SPPF 后接大核可分离注意力。."""
 
     def __init__(self, c1, c2, k=5):
         super().__init__()
