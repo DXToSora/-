@@ -1,15 +1,14 @@
 # SEFuse: SE 通道注意力增强的特征融合（Concat 的严格超集）
 # 用法: 在 yaml 中把 PANet 的 Concat 换成 SEFuse
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class SEFuse(nn.Module):
-    """SE 通道注意力增强的特征融合。
+    """SE 通道注意力增强的特征融合。.
 
-    对两路输入分别做通道注意力（Squeeze-and-Excitation）加权后，按通道拼接。
-    注意力支路最后一层零初始化，使初始权重为 1，因此初始状态完全等价于普通
-    Concat；训练中可学到非平凡权重以超越 Concat（容量上是 Concat 的严格超集）。
+    对两路输入分别做通道注意力（Squeeze-and-Excitation）加权后，按通道拼接。 注意力支路最后一层零初始化，使初始权重为 1，因此初始状态完全等价于普通 Concat；训练中可学到非平凡权重以超越
+    Concat（容量上是 Concat 的严格超集）。
 
     Args:
         c1 (int): 第一路输入通道数
