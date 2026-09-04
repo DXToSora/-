@@ -9,13 +9,13 @@
 import math
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from ultralytics.utils.ops import xywh2xyxy
 
 
 def kernel_by_stride(s):
-    """核大小按论文 Eq.4: K = 2*floor(log2(s)/2)+1，保证奇数。
+    """核大小按论文 Eq.4: K = 2*floor(log2(s)/2)+1，保证奇数。.
 
     P2(s=4)→3, P3(s=8)→3, P4(s=16)→5, P5(s=32)→5
     """
@@ -23,7 +23,7 @@ def kernel_by_stride(s):
 
 
 class HBS(nn.Module):
-    """单层背景平滑模块（论文 Eq.3）。
+    """单层背景平滑模块（论文 Eq.3）。.
 
     Args:
         c (int): 输入/输出通道数。
@@ -42,7 +42,7 @@ class HBS(nn.Module):
         nn.init.zeros_(self.conv2.bias)
 
     def forward(self, p, mask):
-        """p: (B,C,H,W)，mask: (B,1,H,W) 0/1。"""
+        """P: (B,C,H,W)，mask: (B,1,H,W) 0/1。."""
         p_fg = p * mask
         p_bg = p * (1.0 - mask)
         p_bg_s = self.conv2(self.act(self.conv1(p_bg))) + p_bg
@@ -50,7 +50,7 @@ class HBS(nn.Module):
 
 
 class HBSAux(nn.Module):
-    """HBS + 独立辅助检测头（仅训练时调用）。
+    """HBS + 独立辅助检测头（仅训练时调用）。.
 
     Args:
         ch_list (list[int]): 各检测层(P2~P5)的通道数。
@@ -74,10 +74,9 @@ class HBSAux(nn.Module):
 
 
 def build_gt_mask(batch, neck_feats):
-    """由 GT 框生成每层硬二值 mask（框内=1，框外=0）。
+    """由 GT 框生成每层硬二值 mask（框内=1，框外=0）。.
 
-    GT 框为归一化 xywh（batch["bboxes"], [N,4]），乘以特征图宽高对齐到各层分辨率。
-    坐标取整：左上 floor、右下 ceil，保证 tiny box 至少覆盖 1px、不丢前景。
+    GT 框为归一化 xywh（batch["bboxes"], [N,4]），乘以特征图宽高对齐到各层分辨率。 坐标取整：左上 floor、右下 ceil，保证 tiny box 至少覆盖 1px、不丢前景。
 
     Args:
         batch (dict): 含 bboxes([N,4] 归一化 xywh)、batch_idx([N,1])。
