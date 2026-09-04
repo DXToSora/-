@@ -1,0 +1,5 @@
+from ultralytics import YOLO
+
+if __name__ == "__main__":
+    model = YOLO(r'yolov8s.pt')
+    model.train(data=r'coco8.yaml',epochs=30,imgsz=640,batch=2,cache=False,workers=0)
